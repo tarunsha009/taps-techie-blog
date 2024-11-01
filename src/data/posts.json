@@ -1,0 +1,25 @@
+[
+    {
+      "title": "Python Magic Methods",
+      "slug": "python-magic-methods",
+      "date": "2023-10-10",
+      "author": "Tarun",
+      "readTime": "5 min",
+      "tags": ["python", "magic methods"],
+      "difficulty": "Intermediate",
+      "excerpt": "Learn about magic methods in Python.",
+      "series": "Advanced Python"
+    },
+    {
+      "title": "Test Markdown",
+      "slug": "test-markdown",
+      "date": "2023-09-01",
+      "author": "Tarun",
+      "readTime": "3 min",
+      "tags": ["testing"],
+      "difficulty": "Beginner",
+      "excerpt": "Introduction to testing with Markdown.",
+      "series": "Intro to Testing"
+    }
+  ]
+  
