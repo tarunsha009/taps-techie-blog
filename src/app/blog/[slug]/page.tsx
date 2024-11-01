@@ -1,22 +1,12 @@
+// src/app/blog/[slug]/page.tsx
 'use client';
 import { getPostBySlug, PostMetadata } from '@/lib/markdown';
-import hljs from 'highlight.js';
 import 'highlight.js/styles/github-dark.css';
 import { Bookmark, BookOpen, Calendar, Coffee, Heart, Share2, User } from 'lucide-react';
 import { marked } from 'marked';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import './styles.css';
-
-// Configure marked
-marked.setOptions({
-  highlight: function(code, lang) {
-    const language = lang && hljs.getLanguage(lang) ? lang : 'plaintext';
-    return hljs.highlight(code, { language }).value;
-  },
-  breaks: true,
-  gfm: true
-});
 
 interface BlogPostProps {
   params: {
