@@ -18,7 +18,13 @@ marked.setOptions({
   gfm: true
 });
 
-export default function BlogPost({ params }: { params: { slug: string } }) {
+interface BlogPostProps {
+  params: {
+    slug: string;
+  };
+}
+
+export default function BlogPost({ params }: BlogPostProps) {
   const [isLiked, setIsLiked] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
