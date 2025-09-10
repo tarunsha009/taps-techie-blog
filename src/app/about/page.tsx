@@ -190,8 +190,8 @@ export default function About() {
                             <div className="text-sm text-gray-600 dark:text-gray-300">Years Experience</div>
                         </div>
                         <div className="bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 p-4 rounded-xl text-center transition-colors duration-300">
-                            <div className="text-2xl font-bold text-green-600 dark:text-green-400">3</div>
-                            <div className="text-sm text-gray-600 dark:text-gray-300">Major Companies</div>
+                            <div className="text-2xl font-bold text-green-600 dark:text-green-400">∞</div>
+                            <div className="text-sm text-gray-600 dark:text-gray-300">Learnings</div>
                         </div>
                         <div className="bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 p-4 rounded-xl text-center transition-colors duration-300">
                             <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">∞</div>
