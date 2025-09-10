@@ -3,7 +3,7 @@ title: "🛡️ Bulkhead Pattern in System Design: A Beginner’s Guide to Build
 date: "2025-09-10"
 author: "Tarun"
 readTime: "5 min"
-tags: ["tag1", "tag2", "tag3"]
+tags: ["system-design", "bulkhead-pattern", "fault-tolerant", "resilience"]
 difficulty: "Beginner"
 excerpt: "A compelling excerpt that makes people want to read more..."
 
