@@ -1,13 +1,43 @@
 'use client';
 import { getAllPosts, PostMetadata } from '@/lib/markdown';
-import { formatTitle } from '@/lib/utils'; // Add this import
-import { Calendar, Edit, ExternalLink, FileText, Github, PlusCircle, RefreshCw } from 'lucide-react';
+import { formatTitle } from '@/lib/utils';
+import { Calendar, Edit, ExternalLink, FileText, Github, Lock, PlusCircle, RefreshCw } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 export default function AdminDashboard() {
     const [posts, setPosts] = useState<PostMetadata[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [password, setPassword] = useState('');
+    const [showError, setShowError] = useState(false);
+
+    // Set your admin password here (in production, use environment variables)
+    const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'your-secure-password-123';
+
+    const handleLogin = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (password === ADMIN_PASSWORD) {
+            setIsAuthenticated(true);
+            setShowError(false);
+            // Store authentication in sessionStorage (expires when browser closes)
+            sessionStorage.setItem('admin_auth', 'true');
+        } else {
+            setShowError(true);
+            setPassword('');
+        }
+    };
+
+    const handleLogout = () => {
+        setIsAuthenticated(false);
+        sessionStorage.removeItem('admin_auth');
+    };
+
+    useEffect(() => {
+        // Check if user is already authenticated
+        const isAuth = sessionStorage.getItem('admin_auth') === 'true';
+        setIsAuthenticated(isAuth);
+    }, []);
 
     const loadPosts = async () => {
         setIsLoading(true);
@@ -23,8 +53,10 @@ export default function AdminDashboard() {
     };
 
     useEffect(() => {
-        loadPosts();
-    }, []);
+        if (isAuthenticated) {
+            loadPosts();
+        }
+    }, [isAuthenticated]);
 
     const createNewPostUrl = () => {
         const repoUrl = 'https://github.com/tarunsha009/taps-techie-blog';
@@ -75,10 +107,68 @@ Wrap up your post nicely!
 `;
     };
 
+    // Login Form Component
+    if (!isAuthenticated) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-blue-900 dark:to-purple-900 py-8 transition-colors duration-300 flex items-center justify-center">
+                <div className="max-w-md w-full mx-4">
+                    <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-xl shadow-lg p-8">
+                        <div className="text-center mb-8">
+                            <Lock className="h-12 w-12 mx-auto text-blue-500 dark:text-blue-400 mb-4" />
+                            <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">
+                                🔐 Admin Access
+                            </h1>
+                            <p className="text-gray-600 dark:text-gray-300">
+                                Enter the admin password to continue
+                            </p>
+                        </div>
+
+                        <form onSubmit={handleLogin} className="space-y-6">
+                            <div>
+                                <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    Admin Password
+                                </label>
+                                <input
+                                    type="password"
+                                    id="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
+                                    placeholder="Enter admin password"
+                                    required
+                                />
+                            </div>
+
+                            {showError && (
+                                <div className="p-3 bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg text-sm">
+                                    ❌ Incorrect password. Access denied.
+                                </div>
+                            )}
+
+                            <button
+                                type="submit"
+                                className="w-full bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200"
+                            >
+                                🚀 Access Admin Panel
+                            </button>
+                        </form>
+
+                        <div className="mt-6 text-center">
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                                🛡️ This area is protected. Unauthorized access is prohibited.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // Original Admin Dashboard (only shown when authenticated)
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-blue-900 dark:to-purple-900 py-8 transition-colors duration-300">
             <div className="max-w-6xl mx-auto px-4">
-                {/* Header */}
+                {/* Header with Logout */}
                 <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-xl shadow-lg p-6 mb-8">
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between">
                         <div>
@@ -110,11 +200,19 @@ Wrap up your post nicely!
                                 New Post
                                 <ExternalLink className="h-3 w-3 ml-1" />
                             </a>
+
+                            <button
+                                onClick={handleLogout}
+                                className="flex items-center px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors duration-200"
+                            >
+                                <Lock className="h-4 w-4 mr-2" />
+                                Logout
+                            </button>
                         </div>
                     </div>
 
                     <div className="mt-4 text-sm text-gray-500 dark:text-gray-400">
-                        Last refreshed: {lastRefresh.toLocaleTimeString()}
+                        Last refreshed: {lastRefresh.toLocaleTimeString()} | 🟢 Authenticated as Admin
                     </div>
                 </div>
 
