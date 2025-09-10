@@ -1,4 +1,4 @@
-/* src/app/blog/[slug]/styles.css - Updated with dark mode support */
+/* src/app/blog/[slug]/styles.css - Fixed version */
 
 .prose {
     max-width: none;
@@ -10,7 +10,7 @@
 .prose pre {
     margin: 2em 0;
     padding: 1.5em;
-    background-color: #1e1e1e !important;
+    background-color: #1e1e1e;
     border-radius: 8px;
     overflow-x: auto;
 }
@@ -23,7 +23,7 @@
 }
 
 .prose pre code {
-    color: #f8f8f2 !important;
+    color: #f8f8f2;
     font-weight: 400;
     font-size: 0.875em;
     background-color: transparent;
@@ -34,7 +34,6 @@
 .markdown-content {
     /* Ensure emoji fonts are loaded for all content */
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, 'Noto Color Emoji', 'Apple Color Emoji', 'Segoe UI Emoji', sans-serif;
-    transition: color 0.3s ease;
 }
 
 .markdown-content h1 {
@@ -43,7 +42,6 @@
     margin-bottom: 1.5rem;
     font-weight: 800;
     font-family: inherit;
-    transition: color 0.3s ease;
 }
 
 .markdown-content h2 {
@@ -52,7 +50,6 @@
     margin-bottom: 1rem;
     font-weight: 700;
     font-family: inherit;
-    transition: color 0.3s ease;
 }
 
 .markdown-content h3 {
@@ -61,14 +58,12 @@
     margin-bottom: 0.75rem;
     font-weight: 600;
     font-family: inherit;
-    transition: color 0.3s ease;
 }
 
 .markdown-content p {
     margin-bottom: 1.25rem;
     line-height: 1.8;
     font-family: inherit;
-    transition: color 0.3s ease;
 }
 
 .markdown-content ul,
@@ -81,42 +76,15 @@
 .markdown-content li {
     margin-bottom: 0.5rem;
     font-family: inherit;
-    transition: color 0.3s ease;
 }
 
 .markdown-content strong {
     font-weight: 600;
     color: #4a5568;
     font-family: inherit;
-    transition: color 0.3s ease;
 }
 
-/* Dark mode support for markdown content */
-.dark .markdown-content strong {
-    color: #e2e8f0;
-}
-
-.dark .markdown-content blockquote {
-    border-left-color: #4f46e5;
-    background-color: rgba(79, 70, 229, 0.1);
-    color: #e2e8f0;
-}
-
-.dark .markdown-content table {
-    border-color: #4b5563;
-}
-
-.dark .markdown-content th,
-.dark .markdown-content td {
-    border-color: #4b5563;
-    color: #e2e8f0;
-}
-
-.dark .markdown-content th {
-    background-color: #374151;
-}
-
-/* Ensure all prose elements inherit emoji fonts and support dark mode */
+/* Ensure all prose elements inherit emoji fonts */
 .prose h1,
 .prose h2,
 .prose h3,
@@ -128,7 +96,6 @@
 .prose span,
 .prose div {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, 'Noto Color Emoji', 'Apple Color Emoji', 'Segoe UI Emoji', sans-serif;
-    transition: color 0.3s ease;
 }
 
 /* Force emoji rendering */
@@ -136,44 +103,4 @@
     text-rendering: optimizeLegibility;
     -webkit-font-feature-settings: "liga", "kern";
     font-feature-settings: "liga", "kern";
-}
-
-/* Dark mode specific overrides */
-.dark .prose {
-    color: #e2e8f0;
-}
-
-.dark .prose h1,
-.dark .prose h2,
-.dark .prose h3,
-.dark .prose h4,
-.dark .prose h5,
-.dark .prose h6 {
-    color: #f8fafc;
-}
-
-.dark .prose p {
-    color: #cbd5e1;
-}
-
-.dark .prose li {
-    color: #cbd5e1;
-}
-
-/* Code blocks remain dark in both modes */
-.prose pre {
-    background-color: #1e1e1e !important;
-}
-
-.dark .prose pre {
-    background-color: #0d1117 !important;
-    border: 1px solid #30363d;
-}
-
-/* Inline code styling for dark mode */
-.dark .prose code:not(pre code) {
-    background-color: #374151;
-    color: #f472b6;
-    padding: 0.125rem 0.25rem;
-    border-radius: 0.25rem;
 }

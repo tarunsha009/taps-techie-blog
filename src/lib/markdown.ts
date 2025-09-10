@@ -1,8 +1,9 @@
-// src/lib/markdown.ts - Updated with simple emoji support
+// src/lib/markdown.ts - Dynamic GitHub CMS + UTF-8 safe emoji handling
 
 import matter from 'gray-matter';
 import hljs from 'highlight.js';
 import { marked } from 'marked';
+import { githubCMS } from './github'; // keep your dynamic GitHub integration
 
 export interface PostMetadata {
     title: string;
@@ -38,64 +39,73 @@ marked.setOptions({
     gfm: true
 });
 
-// Simple emoji processing function
+// ---------- UTF-8 helpers ----------
+async function safeFetchText(url: string): Promise<string | null> {
+    try {
+        const res = await fetch(url);
+        if (!res.ok) return null;
+
+        const buf = await res.arrayBuffer();
+        const text = new TextDecoder('utf-8').decode(new Uint8Array(buf));
+        return text.normalize('NFC');
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Repair common mojibake (e.g., ðŸ˜…) from Latin-1 mis-decoding
+ */
+function fixMojibake(s: string): string {
+    if (!/[ÃÂ�]|ð|�/.test(s)) return s;
+
+    const bytes = new Uint8Array([...s].map(ch => ch.charCodeAt(0) & 0xff));
+    try {
+        return new TextDecoder('utf-8', { fatal: false }).decode(bytes).normalize('NFC');
+    } catch {
+        return s;
+    }
+}
+
+// ---------- Emoji pass-through (optional map) ----------
 function processEmojis(text: string): string {
-    // Common emoji mappings that might not render properly
     const emojiMap: Record<string, string> = {
-        '🛡️': '🛡️',
-        '🛳️': '🛳️',
-        '👉': '👉',
-        '✅': '✅',
-        '❌': '❌',
-        '🔧': '🔧',
-        '🚀': '🚀',
-        '💡': '💡',
-        '⚡': '⚡',
-        '🎯': '🎯',
-        '📊': '📊',
-        '🔍': '🔍',
-        '💻': '💻',
-        '🎉': '🎉',
-        '🏗️': '🏗️',
-        '🔥': '🔥',
-        '💪': '💪',
-        '🤖': '🤖',
-        '📚': '📚',
-        '⭐': '⭐',
-        '🌟': '🌟',
-        '😄': '😄',
-        '😉': '😉',
-        '🕺': '🕺'
+        '🛡️': '🛡️', '🛳️': '🛳️', '👉': '👉', '✅': '✅', '❌': '❌',
+        '🔧': '🔧', '🚀': '🚀', '💡': '💡', '⚡': '⚡', '🎯': '🎯', '📊': '📊',
+        '🔍': '🔍', '💻': '💻', '🎉': '🎉', '🏗️': '🏗️', '🔥': '🔥', '💪': '💪',
+        '🤖': '🤖', '📚': '📚', '⭐': '⭐', '🌟': '🌟', '😄': '😄', '😉': '😉', '🕺': '🕺'
     };
-
     let processed = text;
-    Object.entries(emojiMap).forEach(([emoji, replacement]) => {
+    for (const [emoji, replacement] of Object.entries(emojiMap)) {
         processed = processed.replace(new RegExp(emoji, 'g'), replacement);
-    });
-
+    }
     return processed;
 }
 
+// ---------- Main functions ----------
 export async function getPostBySlug(slug: string) {
     try {
-        // Try different file extensions and paths
-        let response;
-        let markdown;
+        let markdown: string | null = null;
 
-        const attempts = [
-            `/content/posts/${slug}.md`,
-            `/content/posts/${slug}`,
-        ];
+        // 1) Try GitHub CMS
+        try {
+            const githubPost = await githubCMS.getPostBySlug(slug);
+            if (githubPost?.content) {
+                markdown = fixMojibake(String(githubPost.content));
+            }
+        } catch {
+            // ignore and fallback
+        }
 
-        for (const path of attempts) {
-            try {
-                response = await fetch(path);
-                if (response.ok) {
-                    markdown = await response.text();
-                    break;
-                }
-            } catch {
-                continue;
+        // 2) Fallback to local files
+        if (!markdown) {
+            const attempts = [
+                `/content/posts/${slug}.md`,
+                `/content/posts/${slug}`,
+            ];
+            for (const path of attempts) {
+                markdown = await safeFetchText(path);
+                if (markdown) break;
             }
         }
 
@@ -106,19 +116,18 @@ export async function getPostBySlug(slug: string) {
 
         const { data, content } = matter(markdown);
 
-        // Process content for better rendering
-        const processedContent = processEmojis(content);
+        const normalized = fixMojibake(content);
+        const processedContent = processEmojis(normalized);
 
-        // Enhanced metadata processing to handle your GitHub CMS format
         const processedData = {
-            title: data.title || 'Untitled',
+            title: fixMojibake(String(data.title || 'Untitled')),
             date: formatDate(data.date || data.datePublished),
             author: data.author || 'Tarun',
-            readTime: data.readTime || calculateReadTime(content),
+            readTime: data.readTime || calculateReadTime(normalized),
             tags: processTags(data.tags),
             difficulty: data.difficulty || 'Beginner',
             series: data.series,
-            excerpt: data.excerpt || data.seoDescription || extractExcerpt(content),
+            excerpt: data.excerpt || data.seoDescription || extractExcerpt(normalized),
             slug,
             seoTitle: data.seoTitle,
             seoDescription: data.seoDescription,
@@ -138,31 +147,71 @@ export async function getPostBySlug(slug: string) {
 }
 
 export async function getAllPosts() {
-    // Updated with your new post
-    const slugs = [
-        'Bulkhead-Pattern', // Your new GitHub CMS post
-        'python-magic-methods',
-        'test-markdown'
-    ];
+    const allPosts: PostMetadata[] = [];
 
-    const posts = await Promise.all(
-        slugs.map(async (slug) => {
-            const post = await getPostBySlug(slug);
-            return post?.metadata;
-        })
-    );
+    // 1) Try GitHub CMS
+    try {
+        const githubPosts = await githubCMS.getAllPosts();
+        if (githubPosts && githubPosts.length > 0) {
+            for (const githubPost of githubPosts) {
+                if (githubPost?.content && githubPost?.slug) {
+                    try {
+                        const { data, content } = matter(githubPost.content);
+                        const normalized = fixMojibake(content);
+                        const processedData = {
+                            title: fixMojibake(String(data.title || 'Untitled')),
+                            date: formatDate(data.date || data.datePublished),
+                            author: data.author || 'Tarun',
+                            readTime: data.readTime || calculateReadTime(normalized),
+                            tags: processTags(data.tags),
+                            difficulty: data.difficulty || 'Beginner',
+                            series: data.series,
+                            excerpt: data.excerpt || data.seoDescription || extractExcerpt(normalized),
+                            slug: githubPost.slug,
+                            seoTitle: data.seoTitle,
+                            seoDescription: data.seoDescription,
+                            datePublished: data.datePublished,
+                            cuid: data.cuid,
+                            cover: data.cover
+                        } as PostMetadata;
+                        allPosts.push(processedData);
+                    } catch (err) {
+                        console.error(`Error parsing GitHub post ${githubPost.slug}:`, err);
+                    }
+                }
+            }
+        }
+    } catch {
+        console.log('GitHub CMS not available, using fallback...');
+    }
 
-    return posts.filter(Boolean).sort((a, b) => {
+    // 2) Fallback to local slugs
+    if (allPosts.length === 0) {
+        const slugs = [
+            'event-order',
+            'Bulkhead-Pattern',
+            'python-magic-methods',
+            'test-markdown'
+        ];
+        const posts = await Promise.all(
+            slugs.map(async (slug) => {
+                const post = await getPostBySlug(slug);
+                return post?.metadata;
+            })
+        );
+        allPosts.push(...posts.filter(Boolean));
+    }
+
+    return allPosts.sort((a, b) => {
         const dateA = new Date(a?.datePublished || a?.date || '').getTime();
         const dateB = new Date(b?.datePublished || b?.date || '').getTime();
         return dateB - dateA;
     });
 }
 
-// Helper functions
+// ---------- Helpers ----------
 function formatDate(dateString: string | undefined): string {
     if (!dateString) return new Date().toISOString().split('T')[0];
-
     try {
         const date = new Date(dateString);
         return date.toISOString().split('T')[0];
@@ -202,6 +251,5 @@ function extractExcerpt(content: string, maxLength: number = 160): string {
 
     const truncated = plainText.substring(0, maxLength);
     const lastSpace = truncated.lastIndexOf(' ');
-
     return lastSpace > 0 ? truncated.substring(0, lastSpace) + '...' : truncated + '...';
 }
