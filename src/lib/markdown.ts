@@ -190,8 +190,7 @@ export async function getAllPosts() {
         const slugs = [
             'event-order',
             'Bulkhead-Pattern',
-            'python-magic-methods',
-            'test-markdown'
+            'python-magic-methods'
         ];
         const posts = await Promise.all(
             slugs.map(async (slug) => {

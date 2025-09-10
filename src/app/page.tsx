@@ -9,6 +9,7 @@ export default function Home() {
     const [selectedTag, setSelectedTag] = useState<string | null>(null);
     const [posts, setPosts] = useState<PostMetadata[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [showAllTags, setShowAllTags] = useState(false);
 
     useEffect(() => {
         async function loadPosts() {
@@ -20,7 +21,21 @@ export default function Home() {
     }, []);
 
     // Get unique tags from all posts
-    const allTags = Array.from(new Set(posts.flatMap(post => post.tags)));
+    // const allTags = Array.from(new Set(posts.flatMap(post => post.tags)));
+    // Count and sort tags by frequency
+    const tagCounts = posts
+        .flatMap(post => post.tags)
+        .reduce((acc: Record<string, number>, tag) => {
+            acc[tag] = (acc[tag] ?? 0) + 1;
+            return acc;
+        }, {});
+    const sortedTags = Object.entries(tagCounts)
+        .sort((a, b) => b[1] - a[1])
+        .map(([tag]) => tag);
+    const TAG_DISPLAY_LIMIT = 10;
+    const displayedTags = showAllTags
+        ? sortedTags
+        : sortedTags.slice(0, TAG_DISPLAY_LIMIT);
 
     // Filter posts based on selected tag
     const filteredPosts = selectedTag
@@ -51,7 +66,8 @@ export default function Home() {
 
                     {/* Tags Filter */}
                     <div className="flex flex-wrap justify-center gap-2 mb-8">
-                        {allTags.map(tag => (
+                        {/* {allTags.map(tag => ( */}
+                        {displayedTags.map(tag => (
                             <button
                                 key={tag}
                                 onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
@@ -64,6 +80,14 @@ export default function Home() {
                                 {tag}
                             </button>
                         ))}
+                        {sortedTags.length > TAG_DISPLAY_LIMIT && (
+                            <button
+                                onClick={() => setShowAllTags(!showAllTags)}
+                                className="px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 transform hover:scale-105 bg-white/80 dark:bg-gray-800/80 text-gray-700 dark:text-gray-300 hover:bg-blue-100 dark:hover:bg-blue-900/50"
+                            >
+                                {showAllTags ? 'Show Less' : 'Show More'}
+                            </button>
+                        )}
                     </div>
                 </div>
 
