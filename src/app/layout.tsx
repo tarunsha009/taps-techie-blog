@@ -1,4 +1,5 @@
 import { defaultSEO } from '@/lib/seo'
+import { Analytics } from "@vercel/analytics/react"
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import Header from '../components/layout/Header'
@@ -88,6 +89,7 @@ export default function RootLayout({
                     <Header />
                     <main className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
                         {children}
+                        <Analytics />
                     </main>
                 </ThemeProvider>
             </body>
