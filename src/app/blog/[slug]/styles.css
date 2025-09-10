@@ -1,68 +1,106 @@
+/* src/app/blog/[slug]/styles.css - Fixed version */
+
 .prose {
     max-width: none;
-  }
-  
-  .prose pre {
+    /* Add emoji font support */
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, 'Noto Color Emoji', 'Apple Color Emoji', 'Segoe UI Emoji', sans-serif;
+    font-variant-emoji: emoji;
+}
+
+.prose pre {
     margin: 2em 0;
     padding: 1.5em;
     background-color: #1e1e1e;
     border-radius: 8px;
     overflow-x: auto;
-  }
-  
-  .prose code {
+}
+
+.prose code {
     color: #e83e8c;
     font-size: 0.875em;
     font-weight: 600;
     font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
-  }
-  
-  .prose pre code {
+}
+
+.prose pre code {
     color: #f8f8f2;
     font-weight: 400;
     font-size: 0.875em;
     background-color: transparent;
     padding: 0;
     border: none;
-  }
-  
-  .markdown-content h1 {
+}
+
+.markdown-content {
+    /* Ensure emoji fonts are loaded for all content */
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, 'Noto Color Emoji', 'Apple Color Emoji', 'Segoe UI Emoji', sans-serif;
+}
+
+.markdown-content h1 {
     font-size: 2.5rem;
     margin-top: 2rem;
     margin-bottom: 1.5rem;
     font-weight: 800;
-  }
-  
-  .markdown-content h2 {
+    font-family: inherit;
+}
+
+.markdown-content h2 {
     font-size: 2rem;
     margin-top: 2rem;
     margin-bottom: 1rem;
     font-weight: 700;
-  }
-  
-  .markdown-content h3 {
+    font-family: inherit;
+}
+
+.markdown-content h3 {
     font-size: 1.5rem;
     margin-top: 1.5rem;
     margin-bottom: 0.75rem;
     font-weight: 600;
-  }
-  
-  .markdown-content p {
+    font-family: inherit;
+}
+
+.markdown-content p {
     margin-bottom: 1.25rem;
     line-height: 1.8;
-  }
-  
-  .markdown-content ul, .markdown-content ol {
+    font-family: inherit;
+}
+
+.markdown-content ul,
+.markdown-content ol {
     margin-top: 1rem;
     margin-bottom: 1rem;
     padding-left: 1.5rem;
-  }
-  
-  .markdown-content li {
+}
+
+.markdown-content li {
     margin-bottom: 0.5rem;
-  }
-  
-  .markdown-content strong {
+    font-family: inherit;
+}
+
+.markdown-content strong {
     font-weight: 600;
     color: #4a5568;
-  }
+    font-family: inherit;
+}
+
+/* Ensure all prose elements inherit emoji fonts */
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6,
+.prose p,
+.prose li,
+.prose span,
+.prose div {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, 'Noto Color Emoji', 'Apple Color Emoji', 'Segoe UI Emoji', sans-serif;
+}
+
+/* Force emoji rendering */
+.prose {
+    text-rendering: optimizeLegibility;
+    -webkit-font-feature-settings: "liga", "kern";
+    font-feature-settings: "liga", "kern";
+}
