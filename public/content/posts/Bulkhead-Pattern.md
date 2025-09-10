@@ -5,7 +5,7 @@ author: "Tarun"
 readTime: "5 min"
 tags: ["system-design", "bulkhead-pattern", "fault-tolerant", "resilience"]
 difficulty: "Beginner"
-excerpt: "A compelling excerpt that makes people want to read more..."
+excerpt: "Learn how the Bulkhead Pattern in system design can isolate failures to keep your software resilient and running smoothl"
 
 ---
 
