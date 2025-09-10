@@ -1,6 +1,6 @@
 'use client';
 import { getAllPosts, PostMetadata } from '@/lib/markdown';
-import { formatTitle } from '@/lib/utils'; // Add this import
+import { formatTitle } from '@/lib/utils';
 import { BookOpen, Calendar, Rocket, User } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -9,7 +9,6 @@ export default function Home() {
     const [selectedTag, setSelectedTag] = useState<string | null>(null);
     const [posts, setPosts] = useState<PostMetadata[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [showAllTags, setShowAllTags] = useState(false);
 
     useEffect(() => {
         async function loadPosts() {
@@ -20,22 +19,19 @@ export default function Home() {
         loadPosts();
     }, []);
 
-    // Get unique tags from all posts
-    // const allTags = Array.from(new Set(posts.flatMap(post => post.tags)));
-    // Count and sort tags by frequency
+    // --- Tag logic (unique, sorted by frequency, capped) ---
     const tagCounts = posts
-        .flatMap(post => post.tags)
+        .flatMap(post => post.tags || [])
         .reduce((acc: Record<string, number>, tag) => {
             acc[tag] = (acc[tag] ?? 0) + 1;
             return acc;
         }, {});
-    const sortedTags = Object.entries(tagCounts)
-        .sort((a, b) => b[1] - a[1])
-        .map(([tag]) => tag);
-    const TAG_DISPLAY_LIMIT = 10;
-    const displayedTags = showAllTags
-        ? sortedTags
-        : sortedTags.slice(0, TAG_DISPLAY_LIMIT);
+
+    const sortedUniqueTags = Array.from(new Set(Object.keys(tagCounts)))
+        .sort((a, b) => tagCounts[b] - tagCounts[a]);
+
+    const TAG_DISPLAY_LIMIT = 15; // adjust between 10–20
+    const displayedTags = sortedUniqueTags.slice(0, TAG_DISPLAY_LIMIT);
 
     // Filter posts based on selected tag
     const filteredPosts = selectedTag
@@ -64,15 +60,14 @@ export default function Home() {
                         Where code meets comedy, and bugs meet their match! 🎯
                     </p>
 
-                    {/* Tags Filter */}
+                    {/* Tags Filter (deduplicated & capped) */}
                     <div className="flex flex-wrap justify-center gap-2 mb-8">
-                        {/* {allTags.map(tag => ( */}
                         {displayedTags.map(tag => (
                             <button
                                 key={tag}
                                 onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
                                 className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 transform hover:scale-105
-                  ${selectedTag === tag
+                                    ${selectedTag === tag
                                         ? 'bg-blue-500 text-white dark:bg-blue-600'
                                         : 'bg-white/80 dark:bg-gray-800/80 text-gray-700 dark:text-gray-300 hover:bg-blue-100 dark:hover:bg-blue-900/50'
                                     }`}
@@ -80,14 +75,6 @@ export default function Home() {
                                 {tag}
                             </button>
                         ))}
-                        {sortedTags.length > TAG_DISPLAY_LIMIT && (
-                            <button
-                                onClick={() => setShowAllTags(!showAllTags)}
-                                className="px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 transform hover:scale-105 bg-white/80 dark:bg-gray-800/80 text-gray-700 dark:text-gray-300 hover:bg-blue-100 dark:hover:bg-blue-900/50"
-                            >
-                                {showAllTags ? 'Show Less' : 'Show More'}
-                            </button>
-                        )}
                     </div>
                 </div>
 
@@ -119,9 +106,12 @@ export default function Home() {
                                             </div>
                                             <span
                                                 className={`px-3 py-1 rounded-full text-sm font-medium
-                          ${post.difficulty === 'Beginner' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300' :
-                                                        post.difficulty === 'Intermediate' ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300' :
-                                                            'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'}`}
+                                                    ${post.difficulty === 'Beginner'
+                                                        ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300'
+                                                        : post.difficulty === 'Intermediate'
+                                                            ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300'
+                                                            : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'
+                                                    }`}
                                             >
                                                 {post.difficulty}
                                             </span>
@@ -171,7 +161,7 @@ export default function Home() {
                     <div className="max-w-md mx-auto flex gap-4">
                         <input
                             type="email"
-                            placeholder="your@email.com"
+                            placeholder="tarunsha009@gmail.com"
                             className="flex-1 px-4 py-2 rounded-lg border-2 border-transparent focus:border-blue-500 focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-colors duration-300"
                         />
                         <button className="px-6 py-2 bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-lg transition-colors duration-300">
