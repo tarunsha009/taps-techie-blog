@@ -13,7 +13,7 @@ export interface GitHubFile {
     encoding?: string;
 }
 
-const GITHUB_TOKEN = process.env.NEXT_PUBLIC_GITHUB_TOKEN; // Optional for public repos
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN || ''; // Optional for public repos
 const GITHUB_OWNER = 'tarunsha009'; // Your GitHub username
 const GITHUB_REPO = 'taps-techie-blog'; // Your repo name
 const POSTS_PATH = 'public/content/posts'; // Path to your posts

@@ -1,9 +1,12 @@
 // src/lib/markdown.ts - Dynamic GitHub CMS + UTF-8 safe emoji handling
+// import 'server-only';
+const IS_BROWSER = typeof window !== 'undefined';
+
 
 import matter from 'gray-matter';
 import hljs from 'highlight.js';
 import { marked } from 'marked';
-import { githubCMS } from './github'; // keep your dynamic GitHub integration
+import { githubCMS } from './github.ts'; // keep your dynamic GitHub integration
 
 export interface PostMetadata {
     title: string;
@@ -88,14 +91,26 @@ export async function getPostBySlug(slug: string) {
         let markdown: string | null = null;
 
         // 1) Try GitHub CMS
+        // 1) Try GitHub CMS (server) or our API (browser)
         try {
-            const githubPost = await githubCMS.getPostBySlug(slug);
-            if (githubPost?.content) {
-                markdown = fixMojibake(String(githubPost.content));
+            if (!IS_BROWSER) {
+                const githubPost = await githubCMS.getPostBySlug(slug);
+                if (githubPost?.content) {
+                    markdown = fixMojibake(String(githubPost.content));
+                }
+            } else {
+                const res = await fetch(`/api/content?slug=${encodeURIComponent(slug)}`);
+                if (res.ok) {
+                    const githubPost = await res.json();
+                    if (githubPost?.content) {
+                        markdown = fixMojibake(String(githubPost.content));
+                    }
+                }
             }
         } catch {
             // ignore and fallback
         }
+
 
         // 2) Fallback to local files
         if (!markdown) {
@@ -150,8 +165,12 @@ export async function getAllPosts() {
     const allPosts: PostMetadata[] = [];
 
     // 1) Try GitHub CMS
+    // 1) Try GitHub CMS (server) or our API (browser)
     try {
-        const githubPosts = await githubCMS.getAllPosts();
+        const githubPosts = !IS_BROWSER
+            ? await githubCMS.getAllPosts()
+            : await (await fetch('/api/content?list=1')).json();
+
         if (githubPosts && githubPosts.length > 0) {
             for (const githubPost of githubPosts) {
                 if (githubPost?.content && githubPost?.slug) {
@@ -184,6 +203,7 @@ export async function getAllPosts() {
     } catch {
         console.log('GitHub CMS not available, using fallback...');
     }
+
 
     // 2) Fallback to local slugs
     if (allPosts.length === 0) {
