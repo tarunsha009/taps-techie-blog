@@ -1,11 +1,11 @@
 ---
 title: "🛡️ Bulkhead Pattern in System Design: A Beginner’s Guide to Building Resilient Systems"
-seoTitle: "Building Resilient Systems with Bulkhead Pattern"
-seoDescription: "Learn how the Bulkhead Pattern in system design can isolate failures to keep your software resilient and running smoothly"
-datePublished: Wed Sep 10 2025 04:21:05 GMT+0000 (Coordinated Universal Time)
-cuid: cmfdh2amb000202l1gqyzasu9
-slug: bulkhead-pattern-in-system-design-a-beginners-guide-to-building-resilient-systems
-cover: https://cdn.hashnode.com/res/hashnode/image/stock/unsplash/cckf4TsHAuw/upload/219c1b30ce71dd675bda7452a66d6ee0.jpeg
+date: "2025-09-10"
+author: "Tarun"
+readTime: "5 min"
+tags: ["tag1", "tag2", "tag3"]
+difficulty: "Beginner"
+excerpt: "A compelling excerpt that makes people want to read more..."
 
 ---
 
